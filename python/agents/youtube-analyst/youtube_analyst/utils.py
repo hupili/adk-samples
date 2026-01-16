@@ -14,5 +14,5 @@ def load_prompt(base_dir: str, filename: str) -> str:
         The content of the prompt file.
     """
     prompt_path = os.path.join(base_dir, "prompts", filename)
-    with open(prompt_path, "r") as f:
+    with open(prompt_path) as f:
         return f.read()

@@ -81,4 +81,4 @@ async def execute_visualization_code(
 
         return f"Interactive chart saved to {filename}"
     except Exception as e:
-        return f"Error processing visualization: {str(e)}"
+        return f"Error processing visualization: {e!s}"

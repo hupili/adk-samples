@@ -388,7 +388,7 @@ def plot_metrics(
 
         return f"Chart saved to {filename}"
     except Exception as e:
-        return f"Error plotting metrics: {str(e)}"
+        return f"Error plotting metrics: {e!s}"
 
 
 def get_current_date_time():
@@ -466,4 +466,4 @@ async def render_html(
 
         return f"HTML saved to {filename}"
     except Exception as e:
-        return f"Error saving HTML: {str(e)}"
+        return f"Error saving HTML: {e!s}"
