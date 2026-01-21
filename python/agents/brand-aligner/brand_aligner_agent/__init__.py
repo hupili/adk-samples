@@ -1,4 +1,4 @@
-# Copyright 2025 Google LLC
+# Copyright 2026 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,17 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from google.adk.agents import Agent
+from dotenv import load_dotenv
 
-from podcast_transcript_agent.models.podcast_topics import PodcastTopics
+# Load environment variables from a .env file in the parent directory.
+# The override=True flag ensures that existing environment variables are updated.
+load_dotenv(override=True)
 
-from . import prompt
-
-podcast_topics_agent = Agent(
-    name="podcast_topics_agent",
-    model="gemini-2.5-flash",
-    description="Extracts podcast topics from provided input",
-    instruction=prompt.TOPIC_EXTRACTION_PROMPT,
-    output_schema=PodcastTopics,
-    output_key="podcast_topics",
-)
+from . import agent, auth, models, services, tools, utils  # noqa: E402, F401
