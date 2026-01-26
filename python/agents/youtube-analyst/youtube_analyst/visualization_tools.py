@@ -1,9 +1,12 @@
+import logging
 import os
 
 import plotly.express as px
 import plotly.graph_objects as go
 from google.adk.tools import ToolContext
 from google.genai import types
+
+logger = logging.getLogger(__name__)
 
 
 async def execute_visualization_code(
@@ -75,9 +78,9 @@ async def execute_visualization_code(
                         )
                     ),
                 )
-                print(f"Successfully saved artifact {filename}")
+                logger.info(f"Successfully saved artifact {filename}")
             except Exception as e:
-                print(f"Warning: Failed to save artifact: {e}")
+                logger.warning(f"Warning: Failed to save artifact: {e}")
 
         return f"Interactive chart saved to {filename}"
     except Exception as e:

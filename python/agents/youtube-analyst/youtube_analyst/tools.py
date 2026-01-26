@@ -1,14 +1,16 @@
 import datetime
+import logging
 import math
 import os
 
-import matplotlib.pyplot as plt
 from google.adk.tools import ToolContext
 from google.genai import types
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
 from .config import config
+
+logger = logging.getLogger(__name__)
 
 
 def get_youtube_client():
@@ -58,7 +60,7 @@ def search_youtube(
                 )
         return results
     except HttpError as e:
-        print(f"An HTTP error {e.resp.status} occurred:\n{e.content}")
+        logger.error(f"An HTTP error {e.resp.status} occurred:\n{e.content}")
         return []
 
 
@@ -104,7 +106,7 @@ def get_video_details(video_ids: list):
             )
         return results
     except HttpError as e:
-        print(f"An HTTP error {e.resp.status} occurred:\n{e.content}")
+        logger.error(f"An HTTP error {e.resp.status} occurred:\n{e.content}")
         return []
 
 
@@ -147,7 +149,7 @@ def get_channel_details(channel_ids: list):
             )
         return results
     except HttpError as e:
-        print(f"An HTTP error {e.resp.status} occurred:\n{e.content}")
+        logger.error(f"An HTTP error {e.resp.status} occurred:\n{e.content}")
         return []
 
 
@@ -183,7 +185,7 @@ def get_video_comments(video_id: str, max_results: int = 20):
             comments.append(comment)
         return comments
     except HttpError as e:
-        print(f"An HTTP error {e.resp.status} occurred:\n{e.content}")
+        logger.error(f"An HTTP error {e.resp.status} occurred:\n{e.content}")
         return []
 
 
@@ -313,84 +315,6 @@ def analyze_sentiment_heuristic(text: str):
     return max(-1, min(1, score))
 
 
-def plot_metrics(
-    data: dict,
-    chart_type: str = "bar",
-    title: str = "Metrics",
-    x_label: str = "",
-    y_label: str = "",
-    filename: str = "plot.png",
-    tool_context: ToolContext = None,
-):
-    """
-    Generates a chart from the provided data and saves it to a file.
-
-    Args:
-        data: A dictionary where keys are categories (x-axis) and values are numerical (y-axis).
-              Example: {'Channel A': 5.5, 'Channel B': 3.2}
-        chart_type: Type of chart: 'bar', 'pie', 'line', 'scatter'.
-        title: Title of the chart.
-        x_label: Label for the X-axis.
-        y_label: Label for the Y-axis.
-        filename: The name of the file to save (e.g., 'engagement_rates.png').
-        tool_context: The ADK tool context (automatically injected if available).
-
-    Returns:
-        The path to the saved image file.
-    """
-    try:
-        # Create output directory if it doesn't exist
-        output_dir = "output"
-        if not os.path.exists(output_dir):
-            os.makedirs(output_dir)
-
-        filepath = os.path.join(output_dir, filename)
-
-        names = list(data.keys())
-        values = list(data.values())
-
-        plt.figure(figsize=(10, 6))
-
-        if chart_type == "bar":
-            plt.bar(names, values, color="skyblue")
-        elif chart_type == "line":
-            plt.plot(names, values, marker="o", linestyle="-", color="green")
-        elif chart_type == "scatter":
-            plt.scatter(names, values, color="red")
-        elif chart_type == "pie":
-            plt.pie(values, labels=names, autopct="%1.1f%%", startangle=140)
-
-        plt.title(title)
-        if chart_type != "pie":
-            plt.xlabel(x_label)
-            plt.ylabel(y_label)
-            plt.xticks(rotation=45, ha="right")
-
-        plt.tight_layout()
-        plt.savefig(filepath)
-        plt.close()
-
-        if tool_context:
-            try:
-                with open(filepath, "rb") as f:
-                    image_bytes = f.read()
-                tool_context.save_artifact(
-                    filename.replace(".", "_"),
-                    types.Part(
-                        inline_data=types.Blob(
-                            mime_type="image/png", data=image_bytes
-                        )
-                    ),
-                )
-                print(f"Successfully saved artifact {filename}")
-            except Exception as e:
-                print(f"Warning: Failed to save artifact: {e}")
-
-        return f"Chart saved to {filename}"
-    except Exception as e:
-        return f"Error plotting metrics: {e!s}"
-
-
 def get_current_date_time():
     """
     Returns the current date and time in UTC (RFC 3339 format).
@@ -460,9 +384,9 @@ async def render_html(
                     data=html_content.encode("utf-8"), mime_type="text/html"
                 ),
             )
-            print("Successfully saved HTML to tool context")
+            logger.info("Successfully saved HTML to tool context")
         except Exception as e:
-            print(f"Warning: Failed to save artifact: {e}")
+            logger.warning(f"Warning: Failed to save artifact: {e}")
 
         return f"HTML saved to {filename}"
     except Exception as e:
